@@ -11,8 +11,8 @@ install:
 	python3 -m pip install .
 
 
-.PHONY : build
-build:
-	rm -rf build
-	rm -rf dist
-	python3 -m build
+.PHONY : test
+test:
+	python3 -m pip install -e ".[testing]"
+	python3 -m pytest --cov=static_osm_indexer tests/
+

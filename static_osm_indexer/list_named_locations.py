@@ -90,6 +90,16 @@ class NameHandler(o.SimpleHandler):
             self.handle_named_point(name, x, y)
 
 
+def dump_location_names(input_pbf: str, output_file: str, tags: list[str]):
+    with open(output_file, "w") as fw:
+        nh = NameHandler(fw, tags)
+        # As we need the geometry, the node locations need to be cached. Therefore
+        # set 'locations' to true.
+        nh.apply_file(input_pbf, locations=True)
+    print(f"found {nh.total_names} names")
+    print(f"found {nh.invalid_counter} invalid objects")
+
+
 @click.command()
 @click.argument("input_pbf", type=click.Path(exists=True, dir_okay=False))
 @click.argument(
@@ -105,13 +115,7 @@ class NameHandler(o.SimpleHandler):
     "Identical name and coordinates combinations are deduplicated.",
 )
 def main(input_pbf: str, output_file: str, tags: str):
-    with open(output_file, "w") as fw:
-        nh = NameHandler(fw, [t.strip() for t in tags.split(",")])
-        # As we need the geometry, the node locations need to be cached. Therefore
-        # set 'locations' to true.
-        nh.apply_file(input_pbf, locations=True)
-    print(f"found {nh.total_names} names")
-    print(f"found {nh.invalid_counter} invalid objects")
+    dump_location_names(input_pbf, output_file, [t.strip() for t in tags.split(",")])
 
 
 if __name__ == "__main__":

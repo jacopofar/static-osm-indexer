@@ -18,27 +18,7 @@ def dump_names(pending, name_indexes_folder):
             json.dump(addresses_list, fw, indent=2)
 
 
-@click.command()
-@click.argument("input_locations_list", type=click.Path(exists=True, dir_okay=False))
-@click.argument(
-    "output_folder",
-    type=click.Path(exists=True, dir_okay=True, file_okay=False, path_type=Path),
-)
-@click.option(
-    "--token_length",
-    default=3,
-    show_default=True,
-    type=click.INT,
-    help="Length of the prefix for the reverse index",
-)
-@click.option(
-    "--stopwords",
-    default="",
-    show_default=True,
-    type=click.STRING,
-    help="Comma separated list of words not to be indexed. Case insensitive.",
-)
-def main(
+def index_location_names(
     input_locations_list: str, output_folder: Path, token_length: int, stopwords: str
 ):
     pending: dict[str, list[dict]] = {}
@@ -75,6 +55,32 @@ def main(
             indent=2,
         )
     print(f"Processed {idx} lines")
+
+
+@click.command()
+@click.argument("input_locations_list", type=click.Path(exists=True, dir_okay=False))
+@click.argument(
+    "output_folder",
+    type=click.Path(exists=True, dir_okay=True, file_okay=False, path_type=Path),
+)
+@click.option(
+    "--token_length",
+    default=3,
+    show_default=True,
+    type=click.INT,
+    help="Length of the prefix for the reverse index",
+)
+@click.option(
+    "--stopwords",
+    default="",
+    show_default=True,
+    type=click.STRING,
+    help="Comma separated list of words not to be indexed. Case insensitive.",
+)
+def main(
+    input_locations_list: str, output_folder: Path, token_length: int, stopwords: str
+):
+    index_location_names(input_locations_list, output_folder, token_length, stopwords)
 
 
 if __name__ == "__main__":
