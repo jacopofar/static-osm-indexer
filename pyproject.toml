@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=64.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "StaticOSMIndexer"
+description = "Tool to index OSM files for static sites"
+authors = [
+    { name="Jacopo Farina", email="jacopo1.farina@gmail.com"},
+]
+maintainers = [
+    { name="Jacopo Farina", email="jacopo1.farina@gmail.com"},
+]
+readme = "README.md"
+license = {text = "BSD 3-Clause License"}
+requires-python = ">=3.9"
+dependencies = [
+    'osmium>=3.4.0',
+    'click>=8.1.0',
+    'shapely==2.0b2'
+]
+
+dynamic = ["version"]
+
+[project.scripts]
+soi_list_named_locations = "static_osm_indexer.list_named_locations:main"
+
+
+[project.optional-dependencies]
+testing = [
+    "coverage",
+]
