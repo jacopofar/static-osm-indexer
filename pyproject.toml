@@ -2,6 +2,11 @@
 requires = ["setuptools>=64.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools]
+# explicitly specified to ignore folders like htmlcov that
+# would be auto-discovered as packages
+packages = ["static_osm_indexer"]
+
 [project]
 name = "StaticOSMIndexer"
 description = "Tool to index OSM files for static sites"
