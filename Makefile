@@ -3,8 +3,7 @@ help:
 	@echo 'Usage: make <subcommand>'
 	@echo ''
 	@echo 'Subcommands:'
-	@echo '    install       Install Python-Markdown locally'
-	@echo '    build         Build a source distribution'
+	@echo '    install       Install locally'
 
 .PHONY : install
 install:
@@ -14,5 +13,6 @@ install:
 .PHONY : test
 test:
 	python3 -m pip install -e ".[testing]"
-	python3 -m pytest --cov=static_osm_indexer tests/
+	python3 -m pytest --cov=static_osm_indexer --cov-report html tests/
+
 

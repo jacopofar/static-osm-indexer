@@ -89,6 +89,15 @@ class NameHandler(o.SimpleHandler):
         for name, x, y in named_locations:
             self.handle_named_point(name, x, y)
 
+    def relation(self, r):
+        # Relations not already visible as area objects are things not useful
+        # as named locations
+        # using `osmium show`` it's possible to see them, in the test file
+        # there are many that represents for example the M5 line or the whole
+        # Milan public transport system.
+        # this method is defined only to hold for this comment
+        pass
+
 
 def dump_location_names(input_pbf: str, output_file: str, tags: list[str]):
     with open(output_file, "w") as fw:
