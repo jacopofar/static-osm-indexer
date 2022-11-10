@@ -9,6 +9,10 @@ help:
 install:
 	python3 -m pip install .
 
+.PHONY : bundle_fe
+bundle_fe:
+	cd frontend && npm install && npm run build
+
 
 .PHONY : test
 test:

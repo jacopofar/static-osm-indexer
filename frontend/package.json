@@ -4,12 +4,21 @@
   "description": "Client-side component of the static OSM Indexer",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "./node_modules/esbuild/bin/esbuild --bundle text_search.ts --outfile=text_search.bundle.js --format=esm"
+    "test": "jest",
+    "build": "./node_modules/esbuild/bin/esbuild --bundle text_search.ts --outfile=text_search.bundle.js --format=esm",
+    "prettier": "prettier --write ."
   },
   "author": "Jacopo Farina",
   "license": "MIT",
   "dependencies": {
     "esbuild": "^0.15.13"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.2.2",
+    "jest": "^29.3.1",
+    "jest-environment-jsdom": "^29.3.1",
+    "jest-fetch-mock": "^3.0.3",
+    "prettier": "^2.7.1",
+    "ts-jest": "^29.0.3"
   }
 }
