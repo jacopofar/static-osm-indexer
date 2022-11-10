@@ -55,7 +55,7 @@
         document.getElementById("searchbar").addEventListener("input", (e) => {
             idx.search(e.target.value).then(results => {
                 showResults(results)
-            })
+            }).catch(err => window.alert("search error:" + err))
         })
 
     </script>

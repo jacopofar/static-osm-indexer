@@ -4,3 +4,4 @@ build
 .vscode/
 # local OSM extracts files for playing around
 *.osm.pbf
+**/*.bundle.js
