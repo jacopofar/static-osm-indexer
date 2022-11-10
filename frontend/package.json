@@ -1,0 +1,15 @@
+{
+  "name": "static_osm_indexer",
+  "version": "0.1.0",
+  "description": "Client-side component of the static OSM Indexer",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "./node_modules/esbuild/bin/esbuild --bundle text_search.ts --outfile=text_search.bundle.js --format=esm"
+  },
+  "author": "Jacopo Farina",
+  "license": "MIT",
+  "dependencies": {
+    "esbuild": "^0.15.13"
+  }
+}

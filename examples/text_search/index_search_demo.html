@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Demo for static address indexing</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        .result-entry {
+            margin: 0.5em;
+            border: green;
+            border-style: solid;
+            padding: 0.5em;
+            background: aliceblue;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Static index demo</h1>
+    <input id="searchbar" type="text" style="margin: 10px;" placeholder="Insert address or name here" />
+    <div id="searchstatus"></div>
+    <script type="module">
+        import { AddressTextualIndex } from "./text_search.bundle.js";
+        const idx = new AddressTextualIndex("index_italy");
+
+        function showResults(results) {
+            if (results.length === 0) {
+                document.getElementById("searchstatus").innerText = 'no results';
+            }
+            else {
+                const resultsDisplay = document.getElementById("searchstatus");
+                // empty everything
+                resultsDisplay.innerHTML = "";
+                const newP = document.createElement("p");
+                newP.appendChild(document.createTextNode(`Found ${results.length} matches`));
+                resultsDisplay.appendChild(newP);
+                for (let res of results.slice(0, 50)) {
+                    const aMatch = document.createElement("div");
+                    aMatch.classList.add("result-entry");
+                    const linkToOSM = document.createElement("a");
+                    linkToOSM.href = `https://www.openstreetmap.org/#map=17/${res.lat}/${res.lon}`
+                    linkToOSM.appendChild(document.createTextNode(`${res.name} @ ${res.lat}, ${res.lon}`))
+                    aMatch.appendChild(linkToOSM);
+                    resultsDisplay.appendChild(aMatch);
+                }
+            }
+        }
+
+        document.getElementById("searchbar").addEventListener("input", (e) => {
+            idx.search(e.target.value).then(results => {
+                showResults(results)
+            })
+        })
+
+    </script>
+
+</body>
+
+</html>
