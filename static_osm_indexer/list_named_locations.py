@@ -3,11 +3,18 @@ Pyosmium docs: https://docs.osmcode.org/pyosmium/latest/index.html
 """
 from io import TextIOWrapper
 import json
+import logging
 import sys
 
 import click
 import osmium as o
 import shapely.wkb as wkblib
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+)
 
 
 class NameHandler(o.SimpleHandler):
@@ -36,12 +43,14 @@ class NameHandler(o.SimpleHandler):
                 try:
                     wkb = self.wkbfab.create_linestring(w)
                 except o.InvalidLocationError:
-                    print(f"Ignoring way {w} because it's invalid", file=sys.stderr)
+                    logger.warn(
+                        f"Ignoring way {w} because it's invalid", file=sys.stderr
+                    )
                     self.invalid_counter += 1
                     return
                 except RuntimeError as e:
                     if "need at least two points for linestring" in str(e):
-                        print(
+                        logger.warn(
                             f"Ignoring way {w} because points are missing",
                             file=sys.stderr,
                         )
@@ -78,7 +87,9 @@ class NameHandler(o.SimpleHandler):
                     wkb = self.wkbfab.create_multipolygon(a)
                 except RuntimeError as e:
                     if "invalid area" in str(e):
-                        print(f"Invalid area {a} from OSM id {a.orig_id()}, ignored")
+                        logger.warn(
+                            f"Invalid area {a} from OSM id {a.orig_id()}, ignored"
+                        )
                         return
                     else:
                         raise e
@@ -105,8 +116,8 @@ def dump_location_names(input_pbf: str, output_file: str, tags: list[str]):
         # As we need the geometry, the node locations need to be cached. Therefore
         # set 'locations' to true.
         nh.apply_file(input_pbf, locations=True)
-    print(f"found {nh.total_names} names")
-    print(f"found {nh.invalid_counter} invalid objects")
+    logger.info(f"found {nh.total_names} names")
+    logger.info(f"found {nh.invalid_counter} invalid objects")
 
 
 @click.command()

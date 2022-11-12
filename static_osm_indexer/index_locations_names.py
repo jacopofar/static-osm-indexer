@@ -1,8 +1,15 @@
 import json
+import logging
 from pathlib import Path
 import re
 
 import click
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+)
 
 
 def dump_names(pending, name_indexes_folder):
@@ -19,12 +26,16 @@ def dump_names(pending, name_indexes_folder):
 
 
 def index_location_names(
-    input_locations_list: str, output_folder: Path, token_length: int, stopwords: str
+    input_locations_list: str,
+    output_folder: Path,
+    token_length: int,
+    stopwords: set[str],
 ):
+    logger.debug(f"Will index with token length {token_length}")
+    logger.debug(f"Ignoring tokens: {stopwords}")
     pending: dict[str, list[dict]] = {}
     SPLIT = re.compile(r"[^\w]+")
     MAX_PENDING = 10000
-    skip = stopwords.split(",")
     with open(input_locations_list) as fr:
         for idx, line in enumerate(fr):
             addr = json.loads(line)
@@ -33,7 +44,7 @@ def index_location_names(
                 # ignore this word for reverse index
                 # this works ONLY if we assume the word can never appear as a proper name
                 # so for example "Folsom street" is OK but there's no "street street"
-                if p in skip:
+                if p in stopwords:
                     continue
                 if len(p) >= token_length:
                     if p[:token_length] in pending:
@@ -41,20 +52,27 @@ def index_location_names(
                     else:
                         pending[p[:token_length]] = [addr]
             if len(pending) > MAX_PENDING:
-                print(f"Writing addresses {idx}")
+                logger.debug(f"Writing addresses {idx}")
                 dump_names(pending, output_folder)
                 pending = {}
     dump_names(pending, output_folder)
     with open(output_folder / "index_metadata.json", "w") as fw:
         json.dump(
             dict(
-                stopwords=stopwords,
+                stopwords=list(stopwords),
                 token_length=token_length,
             ),
             fw,
             indent=2,
         )
-    print(f"Processed {idx} lines")
+    logger.debug(f"Processed {idx} lines")
+
+
+def validate_stopwords(ctx, param, value):
+    if not isinstance(value, str):
+        raise click.BadParameter(f"must be a string, it was {type(value)}")
+    words = [w.strip() for w in value.split(",")]
+    return set(words)
 
 
 @click.command()
@@ -75,10 +93,14 @@ def index_location_names(
     default="",
     show_default=True,
     type=click.STRING,
+    callback=validate_stopwords,
     help="Comma separated list of words not to be indexed. Case insensitive.",
 )
 def main(
-    input_locations_list: str, output_folder: Path, token_length: int, stopwords: str
+    input_locations_list: str,
+    output_folder: Path,
+    token_length: int,
+    stopwords: set[str],
 ):
     index_location_names(input_locations_list, output_folder, token_length, stopwords)
 
