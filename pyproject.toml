@@ -5,7 +5,13 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools]
 # explicitly specified to ignore folders like htmlcov that
 # would be auto-discovered as packages
-packages = ["static_osm_indexer"]
+packages = [
+    "static_osm_indexer",
+    # explicit, to include assets too
+    "static_osm_indexer.static_assets"
+]
+# true by default, just to be explicit
+include-package-data = true
 
 [project]
 name = "StaticOSMIndexer"
@@ -28,6 +34,7 @@ dependencies = [
 dynamic = ["version"]
 
 [project.scripts]
+soi_generate_mbtiles = "static_osm_indexer.generate_mbtiles:main"
 soi_list_named_locations = "static_osm_indexer.list_named_locations:main"
 soi_index_location_names = "static_osm_indexer.index_locations_names:main"
 

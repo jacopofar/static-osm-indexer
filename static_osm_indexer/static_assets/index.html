@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Demo for vector</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <script src="https://unpkg.com/maplibre-gl@2.1.9/dist/maplibre-gl.js"></script>
+    <link href="https://unpkg.com/maplibre-gl@2.1.9/dist/maplibre-gl.css" rel="stylesheet" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Static map demo</h1>
+    <div style="width: 90%; height: 90vh; position:relative;">
+        <div id="map"></div>
+    </div>
+    <input id="searchbar" type="text" style="margin: 10px;" placeholder="Insert address or name here" />
+    <div id="searchstatus"></div>
+    <script>
+        var map = new maplibregl.Map({
+            container: "map",
+            style: "http://127.0.0.1:8100/osm_liberty.json",
+            zoom: 17,
+            maxZoom: 18,
+            // placeholder coordinates, are replaced when copying
+            center: [9.207356, 45.5113243],
+            pitch: 25
+        });
+        const indexAddress = 'addresses_prefixes';
+        // these values must be the same used when indexing
+        // so the indexing script stores them in a metadata file
+        let ignoreSearch = new Set();
+        let minLength = 3;
+        const tokenRegex = /[^\p{L}]+/u;
+        fetch(`${indexAddress}/index_metadata.json`)
+            .then((response) => response.json())
+            .then((data) => {
+                ignoreSearch = new Set(data.stopwords);
+                minLength = data.token_length;
+            })
+
+        // the current file token, avoid reloading
+        let currentFileToken = null;
+        let currentFileContent = null;
+
+        const fileSearch = (queryTokens) => {
+            console.log("Will search for ", queryTokens);
+            let results = [];
+            for (let candidate of currentFileContent) {
+                if (queryTokens.every(qt => {
+                    return candidate.name.toLowerCase().split(tokenRegex).some(
+                        candidateToken =>
+                            candidateToken.startsWith(qt))
+                })) {
+                    console.log("MATCH:", candidate);
+                    results.push(candidate);
+                }
+            }
+            if (results.length === 0) {
+                document.getElementById("searchstatus").innerText = 'no results';
+            }
+            if (results.length === 1) {
+                const lngLat = [results[0].lon, results[0].lat]
+                new maplibregl.Marker()
+                    .setLngLat(lngLat)
+                    .addTo(map);
+                map.flyTo({
+                    center: lngLat
+                });
+            }
+            if (results.length > 1) {
+                document.getElementById("searchstatus").innerText = `${results.length} matches`;
+            }
+        }
+
+        document.getElementById("searchbar").addEventListener("input", (e) => {
+            const queryTokens = e.target.value.toLowerCase().split(tokenRegex);
+            console.log(queryTokens);
+            for (let p of queryTokens) {
+                if (p.length < minLength || ignoreSearch.has(p)) {
+                    continue
+                }
+                const fileToken = p.substring(0, minLength)
+                console.log('research can be triggered, token:', fileToken);
+                if (currentFileToken === fileToken) {
+                    console.log("File already downloaded, filtering");
+                    fileSearch(queryTokens);
+                }
+                else {
+                    fetch(`${indexAddress}/${fileToken}.json`)
+                        .then((response) => {
+                            if (response.ok) {
+                                return response.json()
+                            } else if (response.status === 404) {
+                                // assume an empty file means no results
+                                return Promise.resolve([])
+                            }
+                        })
+                        .then((data) => {
+                            currentFileToken = fileToken;
+                            currentFileContent = data;
+                            fileSearch(queryTokens);
+                        });
+                }
+
+                break;
+            }
+        })
+
+    </script>
+
+</body>
+
+</html>
