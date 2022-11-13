@@ -17,6 +17,7 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)s %(name)s %(message)s",
 )
 
+
 def run_shell_command(command: str):
     logger.debug(f"Running command:\n{command}")
     status = os.system(textwrap.dedent(command).replace("\n", ""))
@@ -37,7 +38,10 @@ def get_local_docker_images(image_name: str):
 
 
 def generate_mbtiles(
-    input_pbf: Path, output_folder: Path, bounding_box: str, config_path: str
+    input_pbf: Path,
+    output_folder: Path,
+    bounding_box: tuple[float, float, float, float],
+    config_path: str,
 ):
     if len(get_local_docker_images("tilemaker")) == 0:
         logger.info("Docker image for tilemaker not found, building it...")
