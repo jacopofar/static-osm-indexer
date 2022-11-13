@@ -40,6 +40,7 @@ dynamic = ["version"]
 soi_generate_mbtiles = "static_osm_indexer.generate_mbtiles:main"
 soi_list_named_locations = "static_osm_indexer.list_named_locations:main"
 soi_index_location_names = "static_osm_indexer.index_locations_names:main"
+soi_generate_full_map = "static_osm_indexer.generate_full_map:main"
 
 
 [project.optional-dependencies]

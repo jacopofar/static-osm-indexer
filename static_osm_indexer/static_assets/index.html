@@ -29,7 +29,8 @@
     </div>
     <input id="searchbar" type="text" style="margin: 10px;" placeholder="Insert address or name here" />
     <div id="searchstatus"></div>
-    <script>
+    <script type="module">
+        import { AddressTextualIndex } from "./text_search.bundle.js";
         var map = new maplibregl.Map({
             container: "map",
             style: "http://127.0.0.1:8100/osm_liberty.json",
@@ -39,85 +40,28 @@
             center: [9.207356, 45.5113243],
             pitch: 25
         });
-        const indexAddress = 'addresses_prefixes';
-        // these values must be the same used when indexing
-        // so the indexing script stores them in a metadata file
-        let ignoreSearch = new Set();
-        let minLength = 3;
-        const tokenRegex = /[^\p{L}]+/u;
-        fetch(`${indexAddress}/index_metadata.json`)
-            .then((response) => response.json())
-            .then((data) => {
-                ignoreSearch = new Set(data.stopwords);
-                minLength = data.token_length;
-            })
-
-        // the current file token, avoid reloading
-        let currentFileToken = null;
-        let currentFileContent = null;
-
-        const fileSearch = (queryTokens) => {
-            console.log("Will search for ", queryTokens);
-            let results = [];
-            for (let candidate of currentFileContent) {
-                if (queryTokens.every(qt => {
-                    return candidate.name.toLowerCase().split(tokenRegex).some(
-                        candidateToken =>
-                            candidateToken.startsWith(qt))
-                })) {
-                    console.log("MATCH:", candidate);
-                    results.push(candidate);
-                }
-            }
-            if (results.length === 0) {
-                document.getElementById("searchstatus").innerText = 'no results';
-            }
-            if (results.length === 1) {
-                const lngLat = [results[0].lon, results[0].lat]
-                new maplibregl.Marker()
-                    .setLngLat(lngLat)
-                    .addTo(map);
-                map.flyTo({
-                    center: lngLat
-                });
-            }
-            if (results.length > 1) {
-                document.getElementById("searchstatus").innerText = `${results.length} matches`;
-            }
-        }
+        const idx = new AddressTextualIndex("locations_index");
 
         document.getElementById("searchbar").addEventListener("input", (e) => {
-            const queryTokens = e.target.value.toLowerCase().split(tokenRegex);
-            console.log(queryTokens);
-            for (let p of queryTokens) {
-                if (p.length < minLength || ignoreSearch.has(p)) {
-                    continue
+            idx.search(e.target.value).then(results => {
+                if (results.length === 0) {
+                    document.getElementById("searchstatus").innerText = 'no results';
                 }
-                const fileToken = p.substring(0, minLength)
-                console.log('research can be triggered, token:', fileToken);
-                if (currentFileToken === fileToken) {
-                    console.log("File already downloaded, filtering");
-                    fileSearch(queryTokens);
+                if (results.length === 1) {
+                    const lngLat = [results[0].lon, results[0].lat]
+                    new maplibregl.Marker()
+                        .setLngLat(lngLat)
+                        .addTo(map);
+                    map.flyTo({
+                        center: lngLat
+                    });
                 }
-                else {
-                    fetch(`${indexAddress}/${fileToken}.json`)
-                        .then((response) => {
-                            if (response.ok) {
-                                return response.json()
-                            } else if (response.status === 404) {
-                                // assume an empty file means no results
-                                return Promise.resolve([])
-                            }
-                        })
-                        .then((data) => {
-                            currentFileToken = fileToken;
-                            currentFileContent = data;
-                            fileSearch(queryTokens);
-                        });
+                if (results.length > 1) {
+                    document.getElementById("searchstatus").innerText = `${results.length} matches`;
                 }
-
-                break;
-            }
+            }).catch(error => {
+                document.getElementById("searchstatus").innerText = `Error when searching: ${error}`;
+            })
         })
 
     </script>

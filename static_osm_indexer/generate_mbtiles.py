@@ -117,6 +117,27 @@ def validate_bounding_box(
         )
 
 
+def complete_mbtiles_generation(
+    input_pbf: Path,
+    bounding_box: BoundingBox,
+    output_folder: Path,
+) -> None:
+    logger.info(
+        f"Processing {input_pbf.absolute()} to write in {output_folder.absolute()}"
+    )
+    logger.info("Generating the MBTiles")
+
+    with tempfile.TemporaryDirectory() as tmpfolder:
+        tilemaker_config = pkg_resources.read_text(
+            static_osm_indexer.static_assets, "tilemaker_config.json"
+        )
+        with open(f"{tmpfolder}/tilemaker_config.json", "w") as cfw:
+            cfw.write(tilemaker_config)
+        generate_mbtiles(input_pbf, output_folder, bounding_box, tmpfolder)
+    generate_pbf_fonts(output_folder)
+    prepare_static_files(output_folder, bounding_box)
+
+
 @click.command()
 @click.argument(
     "input_pbf", type=click.Path(exists=True, dir_okay=False, path_type=Path)
@@ -136,20 +157,7 @@ def main(
     bounding_box: BoundingBox,
     output_folder: Path,
 ) -> None:
-    logger.info(
-        f"Processing {input_pbf.absolute()} to write in {output_folder.absolute()}"
-    )
-    logger.info("Generating the MBTiles")
-
-    with tempfile.TemporaryDirectory() as tmpfolder:
-        tilemaker_config = pkg_resources.read_text(
-            static_osm_indexer.static_assets, "tilemaker_config.json"
-        )
-        with open(f"{tmpfolder}/tilemaker_config.json", "w") as cfw:
-            cfw.write(tilemaker_config)
-        generate_mbtiles(input_pbf, output_folder, bounding_box, tmpfolder)
-    generate_pbf_fonts(output_folder)
-    prepare_static_files(output_folder, bounding_box)
+    complete_mbtiles_generation(input_pbf, bounding_box, output_folder)
 
 
 if __name__ == "__main__":
