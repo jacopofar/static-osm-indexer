@@ -24,7 +24,7 @@ test-fe:
 lint:
 	python3 -m pip install -e ".[testing]"
 	python3 -m black static_osm_indexer
-	python3 -m mypy static_osm_indexer
+	python3 -m mypy --strict --explicit-package-bases static_osm_indexer
 
 .PHONY: lint-fe
 lint-fe:

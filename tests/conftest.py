@@ -1,6 +1,8 @@
+from pathlib import Path
+
 import pytest
 
 
 @pytest.fixture(scope="session")
 def pbf_input_sample():
-    return "tests/static/test_area.pbf"
+    return Path("tests/static/test_area.pbf")

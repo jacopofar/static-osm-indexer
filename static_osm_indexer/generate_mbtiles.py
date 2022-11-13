@@ -10,6 +10,7 @@ import textwrap
 import click
 
 import static_osm_indexer.static_assets
+from static_osm_indexer.helpers import BoundingBox
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -40,7 +41,7 @@ def docker_image_exists(image_name: str) -> bool:
 def generate_mbtiles(
     input_pbf: Path,
     output_folder: Path,
-    bounding_box: tuple[float, float, float, float],
+    bounding_box: BoundingBox,
     config_path: str,
 ) -> None:
     if not docker_image_exists("tilemaker"):
@@ -65,7 +66,7 @@ def generate_mbtiles(
         tilemaker  --input /opt/input/{input_pbf.name} --output /opt/output
         --config /opt/config/tilemaker_config.json
         --skip-integrity
-        --bbox {','.join(str(v) for v in bounding_box)}
+        --bbox {str(bounding_box)}
     """
     )
 
@@ -85,12 +86,10 @@ def generate_pbf_fonts(output_folder: Path) -> None:
     run_shell_command(f"cp -rv fonts/_output {output_folder.absolute()}/fonts")
 
 
-def prepare_static_files(
-    output_folder: Path, bounding_box: tuple[float, float, float, float]
-) -> None:
+def prepare_static_files(output_folder: Path, bounding_box: BoundingBox) -> None:
     index_html = pkg_resources.read_text(static_osm_indexer.static_assets, "index.html")
-    p1 = (bounding_box[0] + bounding_box[2]) / 2
-    p2 = (bounding_box[1] + bounding_box[3]) / 2
+    p1 = (bounding_box.minlon + bounding_box.maxlon) / 2
+    p2 = (bounding_box.minlat + bounding_box.maxlat) / 2
 
     index_html = index_html.replace("9.207356, 45.5113243", f"{p1:.7}, {p2:.7}")
 
@@ -106,12 +105,12 @@ def prepare_static_files(
 
 def validate_bounding_box(
     ctx: click.Context, param: click.Parameter, value: str
-) -> tuple[float, float, float, float]:
+) -> BoundingBox:
     if not isinstance(value, str):
         raise click.BadParameter(f"must be a string, it was {type(value)}")
     try:
         [minlon, minlat, maxlon, maxlat] = value.split(",")
-        return (float(minlon), float(minlat), float(maxlon), float(maxlat))
+        return BoundingBox(float(minlon), float(minlat), float(maxlon), float(maxlat))
     except ValueError:
         raise click.BadParameter(
             f"format was not minlon, minlat, maxlon, maxlat It was: {value}"
@@ -134,7 +133,7 @@ def validate_bounding_box(
 )
 def main(
     input_pbf: Path,
-    bounding_box: tuple[float, float, float, float],
+    bounding_box: BoundingBox,
     output_folder: Path,
 ) -> None:
     logger.info(
