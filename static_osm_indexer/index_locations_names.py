@@ -2,6 +2,7 @@ import json
 import logging
 from pathlib import Path
 import re
+from typing import Any
 
 import click
 
@@ -12,7 +13,9 @@ logging.basicConfig(
 )
 
 
-def dump_names(pending, name_indexes_folder) -> None:
+def dump_names(
+    pending: dict[str, list[dict[str, Any]]], name_indexes_folder: Path
+) -> None:
     for prefix, addresses in pending.items():
         target_file = name_indexes_folder / f"{prefix}.json"
         addresses_list = []
@@ -33,7 +36,7 @@ def index_location_names(
 ) -> None:
     logger.debug(f"Will index with token length {token_length}")
     logger.debug(f"Ignoring tokens: {stopwords}")
-    pending: dict[str, list[dict]] = {}
+    pending: dict[str, list[dict[str, Any]]] = {}
     SPLIT = re.compile(r"[^\w]+")
     MAX_PENDING = 10000
     with open(input_locations_list) as fr:
@@ -68,7 +71,9 @@ def index_location_names(
     logger.debug(f"Processed {idx} lines")
 
 
-def validate_stopwords(ctx, param, value) -> set[str]:
+def validate_stopwords(
+    ctx: click.Context, param: click.Parameter, value: str
+) -> set[str]:
     if not isinstance(value, str):
         raise click.BadParameter(f"must be a string, it was {type(value)}")
     words = [w.strip() for w in value.split(",")]

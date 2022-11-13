@@ -104,7 +104,9 @@ def prepare_static_files(
         fw.write(osm_style)
 
 
-def validate_bounding_box(ctx, param, value) -> tuple[float, float, float, float]:
+def validate_bounding_box(
+    ctx: click.Context, param: click.Parameter, value: str
+) -> tuple[float, float, float, float]:
     if not isinstance(value, str):
         raise click.BadParameter(f"must be a string, it was {type(value)}")
     try:

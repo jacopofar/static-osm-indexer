@@ -4,7 +4,6 @@ Pyosmium docs: https://docs.osmcode.org/pyosmium/latest/index.html
 from io import TextIOWrapper
 import json
 import logging
-import sys
 
 import click
 import osmium as o
@@ -15,6 +14,8 @@ logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s %(levelname)s %(name)s %(message)s",
 )
+
+NamedLocation = tuple[str, float, float]
 
 
 class NameHandler(o.SimpleHandler):
@@ -33,11 +34,11 @@ class NameHandler(o.SimpleHandler):
         self.target_file.write("\n")
         self.total_names += 1
 
-    def way(self, w) -> None:
+    def way(self, w: o.Way) -> None:  # type: ignore [name-defined]
         if w.is_closed():
             # will appear as area, ignore here
             return
-        named_locations = set()
+        named_locations: set[NamedLocation] = set()
         for tag_name in self.tags:
             if tag_name in w.tags:
                 try:
@@ -53,18 +54,19 @@ class NameHandler(o.SimpleHandler):
                         return
                 poly = wkblib.loads(wkb, hex=True)
                 centroid = poly.representative_point()
-                named_locations.add((w.tags.get(tag_name), centroid.x, centroid.y))
+                tag_value = w.tags.get(tag_name)
+                assert tag_value is not None
+                named_locations.add((tag_value, centroid.x, centroid.y))
         for name, x, y in named_locations:
             self.handle_named_point(name, x, y)
 
-    def node(self, n) -> None:
-        named_locations = set()
+    def node(self, n: o.Node) -> None:  # type: ignore [name-defined]
+        named_locations: set[NamedLocation] = set()
         for tag_name in self.tags:
             if tag_name in n.tags:
-
-                named_locations.add(
-                    (n.tags.get(tag_name), n.location.lon, n.location.lat)
-                )
+                tag_value = n.tags.get(tag_name)
+                assert tag_value is not None
+                named_locations.add((tag_value, n.location.lon, n.location.lat))
         for name, x, y in named_locations:
             self.handle_named_point(name, x, y)
 
@@ -74,8 +76,8 @@ class NameHandler(o.SimpleHandler):
     # the opposite is NOT true. A relation has many ways inside (holes and/or multipolygon), and they will
     # appear here as ways but only once as areas, which is usually what we want
     # so unless the ids of relations are needed separately, area can replace relations and closed ways (w.is_closed())
-    def area(self, a) -> None:
-        named_locations = set()
+    def area(self, a: o.Area) -> None:  # type: ignore [name-defined]
+        named_locations: set[NamedLocation] = set()
         for tag_name in self.tags:
             if tag_name in a.tags:
                 try:
@@ -91,11 +93,13 @@ class NameHandler(o.SimpleHandler):
 
                 poly = wkblib.loads(wkb, hex=True)
                 centroid = poly.representative_point()
-                named_locations.add((a.tags.get(tag_name), centroid.x, centroid.y))
+                tag_value = a.tags.get(tag_name)
+                assert tag_value is not None
+                named_locations.add((tag_value, centroid.x, centroid.y))
         for name, x, y in named_locations:
             self.handle_named_point(name, x, y)
 
-    def relation(self, r):
+    def relation(self, r):  # type: ignore
         # Relations not already visible as area objects are things not useful
         # as named locations
         # using `osmium show`` it's possible to see them, in the test file
