@@ -18,7 +18,7 @@ logging.basicConfig(
 )
 
 
-def run_shell_command(command: str):
+def run_shell_command(command: str) -> None:
     logger.debug(f"Running command:\n{command}")
     status = os.system(textwrap.dedent(command).replace("\n", ""))
     if status != 0:
@@ -26,7 +26,7 @@ def run_shell_command(command: str):
         raise OSError(f"Non - status code: {status}")
 
 
-def get_local_docker_images(image_name: str):
+def docker_image_exists(image_name: str) -> bool:
     result = subprocess.run(
         f"docker images {image_name}" " --format '{{json .}}'",
         check=True,
@@ -34,7 +34,7 @@ def get_local_docker_images(image_name: str):
         capture_output=True,
     )
     descr = result.stdout.decode()
-    return [json.loads(line) for line in descr.split("\n") if line]
+    return any([descr.split("\n")])
 
 
 def generate_mbtiles(
@@ -42,8 +42,8 @@ def generate_mbtiles(
     output_folder: Path,
     bounding_box: tuple[float, float, float, float],
     config_path: str,
-):
-    if len(get_local_docker_images("tilemaker")) == 0:
+) -> None:
+    if not docker_image_exists("tilemaker"):
         logger.info("Docker image for tilemaker not found, building it...")
         with tempfile.TemporaryDirectory() as tmpdirname:
             run_shell_command(
@@ -70,7 +70,7 @@ def generate_mbtiles(
     )
 
 
-def generate_pbf_fonts(output_folder: Path):
+def generate_pbf_fonts(output_folder: Path) -> None:
     if not Path("fonts").exists():
         run_shell_command("git clone https://github.com/openmaptiles/fonts.git")
     # the dependency is super old, needs to be updated or doesn't work anymore
@@ -87,7 +87,7 @@ def generate_pbf_fonts(output_folder: Path):
 
 def prepare_static_files(
     output_folder: Path, bounding_box: tuple[float, float, float, float]
-):
+) -> None:
     index_html = pkg_resources.read_text(static_osm_indexer.static_assets, "index.html")
     p1 = (bounding_box[0] + bounding_box[2]) / 2
     p2 = (bounding_box[1] + bounding_box[3]) / 2
@@ -104,12 +104,12 @@ def prepare_static_files(
         fw.write(osm_style)
 
 
-def validate_bounding_box(ctx, param, value):
+def validate_bounding_box(ctx, param, value) -> tuple[float, float, float, float]:
     if not isinstance(value, str):
         raise click.BadParameter(f"must be a string, it was {type(value)}")
     try:
         [minlon, minlat, maxlon, maxlat] = value.split(",")
-        return tuple(float(v) for v in [minlon, minlat, maxlon, maxlat])
+        return (float(minlon), float(minlat), float(maxlon), float(maxlat))
     except ValueError:
         raise click.BadParameter(
             f"format was not minlon, minlat, maxlon, maxlat It was: {value}"
@@ -134,7 +134,7 @@ def main(
     input_pbf: Path,
     bounding_box: tuple[float, float, float, float],
     output_folder: Path,
-):
+) -> None:
     logger.info(
         f"Processing {input_pbf.absolute()} to write in {output_folder.absolute()}"
     )

@@ -12,7 +12,7 @@ logging.basicConfig(
 )
 
 
-def dump_names(pending, name_indexes_folder):
+def dump_names(pending, name_indexes_folder) -> None:
     for prefix, addresses in pending.items():
         target_file = name_indexes_folder / f"{prefix}.json"
         addresses_list = []
@@ -30,7 +30,7 @@ def index_location_names(
     output_folder: Path,
     token_length: int,
     stopwords: set[str],
-):
+) -> None:
     logger.debug(f"Will index with token length {token_length}")
     logger.debug(f"Ignoring tokens: {stopwords}")
     pending: dict[str, list[dict]] = {}
@@ -68,7 +68,7 @@ def index_location_names(
     logger.debug(f"Processed {idx} lines")
 
 
-def validate_stopwords(ctx, param, value):
+def validate_stopwords(ctx, param, value) -> set[str]:
     if not isinstance(value, str):
         raise click.BadParameter(f"must be a string, it was {type(value)}")
     words = [w.strip() for w in value.split(",")]
@@ -101,7 +101,7 @@ def main(
     output_folder: Path,
     token_length: int,
     stopwords: set[str],
-):
+) -> None:
     index_location_names(input_locations_list, output_folder, token_length, stopwords)
 
 

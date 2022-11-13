@@ -26,14 +26,14 @@ class NameHandler(o.SimpleHandler):
         self.tags = tags
         self.wkbfab = o.geom.WKBFactory()
 
-    def handle_named_point(self, name: str, lon: float, lat: float):
+    def handle_named_point(self, name: str, lon: float, lat: float) -> None:
         self.target_file.write(
             json.dumps(dict(name=name, lat=lat, lon=lon), ensure_ascii=False)
         )
         self.target_file.write("\n")
         self.total_names += 1
 
-    def way(self, w):
+    def way(self, w) -> None:
         if w.is_closed():
             # will appear as area, ignore here
             return
@@ -43,17 +43,12 @@ class NameHandler(o.SimpleHandler):
                 try:
                     wkb = self.wkbfab.create_linestring(w)
                 except o.InvalidLocationError:
-                    logger.warn(
-                        f"Ignoring way {w} because it's invalid", file=sys.stderr
-                    )
+                    logger.warn(f"Ignoring way {w} because it's invalid")
                     self.invalid_counter += 1
                     return
                 except RuntimeError as e:
                     if "need at least two points for linestring" in str(e):
-                        logger.warn(
-                            f"Ignoring way {w} because points are missing",
-                            file=sys.stderr,
-                        )
+                        logger.warn(f"Ignoring way {w} because points are missing")
                         self.invalid_counter += 1
                         return
                 poly = wkblib.loads(wkb, hex=True)
@@ -62,7 +57,7 @@ class NameHandler(o.SimpleHandler):
         for name, x, y in named_locations:
             self.handle_named_point(name, x, y)
 
-    def node(self, n):
+    def node(self, n) -> None:
         named_locations = set()
         for tag_name in self.tags:
             if tag_name in n.tags:
@@ -79,7 +74,7 @@ class NameHandler(o.SimpleHandler):
     # the opposite is NOT true. A relation has many ways inside (holes and/or multipolygon), and they will
     # appear here as ways but only once as areas, which is usually what we want
     # so unless the ids of relations are needed separately, area can replace relations and closed ways (w.is_closed())
-    def area(self, a):
+    def area(self, a) -> None:
         named_locations = set()
         for tag_name in self.tags:
             if tag_name in a.tags:
@@ -110,7 +105,7 @@ class NameHandler(o.SimpleHandler):
         pass
 
 
-def dump_location_names(input_pbf: str, output_file: str, tags: list[str]):
+def dump_location_names(input_pbf: str, output_file: str, tags: list[str]) -> None:
     with open(output_file, "w") as fw:
         nh = NameHandler(fw, tags)
         # As we need the geometry, the node locations need to be cached. Therefore
@@ -134,7 +129,7 @@ def dump_location_names(input_pbf: str, output_file: str, tags: list[str]):
     help="Comma separated list of tags to extract."
     "Identical name and coordinates combinations are deduplicated.",
 )
-def main(input_pbf: str, output_file: str, tags: str):
+def main(input_pbf: str, output_file: str, tags: str) -> None:
     dump_location_names(input_pbf, output_file, [t.strip() for t in tags.split(",")])
 
 
