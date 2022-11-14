@@ -4,6 +4,7 @@ Pyosmium docs: https://docs.osmcode.org/pyosmium/latest/index.html
 from io import TextIOWrapper
 import json
 import logging
+from time import time
 
 import click
 import osmium as o
@@ -26,6 +27,7 @@ class NameHandler(o.SimpleHandler):
         self.total_names = 0
         self.tags = tags
         self.wkbfab = o.geom.WKBFactory()
+        self.latest_message: float = time()
 
     def handle_named_point(self, name: str, lon: float, lat: float) -> None:
         self.target_file.write(
@@ -33,6 +35,9 @@ class NameHandler(o.SimpleHandler):
         )
         self.target_file.write("\n")
         self.total_names += 1
+        if time() > self.latest_message + 60:
+            logger.debug(f"Extracted {self.total_names} so far...")
+            self.latest_message = time()
 
     def way(self, w: o.Way) -> None:  # type: ignore [name-defined]
         if w.is_closed():
