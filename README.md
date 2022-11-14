@@ -1,5 +1,7 @@
 # Static OSM indexer
 
+__NOTE__ this project is not production ready at all,maybe never will, but it is still probably very useful.
+
 This is a collection of scripts that can process data extracts from OpenStreetMap (PBF files) allowing the creation of __static sites__ (that is, a bunch of file hosted without any backend processing) to do a few useful operations:
 
 * locate addresses and places based on an user query
@@ -10,11 +12,21 @@ This is a collection of scripts that can process data extracts from OpenStreetMa
 
 Activate the virtual environment and then:
 
+~~```pip install static_osm_indexer```~~
+
 ```
-pip install static_osm_indexer
+make install
 ```
 
 this will make a set of CLI utilities, all prefixed with `soi_`, available. The library can also be used programmatically.
+
+# Generate a map, single step
+
+This command will generate a fully static map from a PBF extract
+
+```soi_generate_full_map italy-latest.osm.pbf 3.8,36.2,20.2,47.8 test_italy_all```
+
+it needs the name of the folder where to store it and the bounding box.
 
 ## Extract named locations
 
