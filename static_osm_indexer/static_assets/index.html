@@ -13,22 +13,34 @@
             padding: 0;
         }
 
+        #app-flex-container {
+            display: flex;
+        }
+
         #map {
-            position: absolute;
             top: 0;
             bottom: 0;
-            width: 100%;
+            width: 60%;
+            height: 100vh;
+        }
+
+        #searchstatus {
+            padding: 1em;
         }
     </style>
 </head>
 
 <body>
     <h1>Static map demo</h1>
-    <div style="width: 90%; height: 90vh; position:relative;">
+
+    <div id="app-flex-container">
         <div id="map"></div>
+        <div id="search-panel">
+            <input id="searchbar" type="text" style="margin: 10px;" placeholder="Insert address or name here" />
+            <div id="searchstatus"></div>
+        </div>
     </div>
-    <input id="searchbar" type="text" style="margin: 10px;" placeholder="Insert address or name here" />
-    <div id="searchstatus"></div>
+
     <script type="module">
         import { AddressTextualIndex } from "./text_search.bundle.js";
         var map = new maplibregl.Map({
@@ -57,7 +69,32 @@
                     });
                 }
                 if (results.length > 1) {
-                    document.getElementById("searchstatus").innerText = `${results.length} matches`;
+                    const resultsDisplay = document.getElementById("searchstatus");
+                    // empty everything
+                    resultsDisplay.innerHTML = "";
+                    const newP = document.createElement("p");
+                    newP.appendChild(
+                        document.createTextNode(`Found ${results.length} matches ${results.length > 50 ? '(truncated)' : ''}:`)
+                    );
+                    resultsDisplay.appendChild(newP);
+                    for (let res of results.slice(0, 50)) {
+                        const aMatch = document.createElement("div");
+                        aMatch.classList.add("result-entry");
+                        const linkToPosition = document.createElement("a");
+                        linkToPosition.href="#";
+                        linkToPosition.onclick = () =>{
+                            const lngLat = [res.lon, res.lat]
+                            new maplibregl.Marker()
+                                .setLngLat(lngLat)
+                                .addTo(map);
+                            map.flyTo({
+                                center: lngLat
+                            });
+                        };
+                        linkToPosition.appendChild(document.createTextNode(`${res.name} @ ${res.lat}, ${res.lon}`))
+                        aMatch.appendChild(linkToPosition);
+                        resultsDisplay.appendChild(aMatch);
+                    }
                 }
             }).catch(error => {
                 document.getElementById("searchstatus").innerText = `Error when searching: ${error}`;
