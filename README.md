@@ -4,7 +4,8 @@ __NOTE__ this project is not production ready at all,maybe never will, but it is
 
 This is a collection of scripts that can process data extracts from OpenStreetMap (PBF files) allowing the creation of __static sites__ (that is, a bunch of file hosted without any backend processing) to do a few useful operations:
 
-* locate addresses and places based on an user query
+* display an interactive map (zoom, pan, scroll) based on vector tiles
+* locate addresses and places by name
 * TODO: nearest neighbor
 * TODO: routing
 
