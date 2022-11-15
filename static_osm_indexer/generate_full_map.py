@@ -60,4 +60,4 @@ def main(
     with open(output_folder.absolute() / "text_search.bundle.js", "w") as fw:
         fw.write(ts_bundle_js)
 
-    logger.info(f'Done! Static map stored at {output_folder.absolute()}')
+    logger.info(f"Done! Static map stored at {output_folder.absolute()}")
