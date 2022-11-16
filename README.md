@@ -13,11 +13,10 @@ This is a collection of scripts that can process data extracts from OpenStreetMa
 
 Activate the virtual environment and then:
 
-~~```pip install static_osm_indexer```~~
+```pip install static_osm_indexer```
 
-```
-make install
-```
+(Or clone this repo and use `make install`)
+
 
 this will make a set of CLI utilities, all prefixed with `soi_`, available. The library can also be used programmatically.
 

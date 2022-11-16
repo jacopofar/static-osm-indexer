@@ -16,6 +16,7 @@ logging.basicConfig(
 def dump_names(
     pending: dict[str, list[dict[str, Any]]], name_indexes_folder: Path
 ) -> None:
+    """Append the names to the files, preserving what's already in there."""
     for prefix, addresses in pending.items():
         target_file = name_indexes_folder / f"{prefix}.json"
         addresses_list = []

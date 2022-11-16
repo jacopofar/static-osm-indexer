@@ -17,8 +17,8 @@ include-package-data = true
 "static_osm_indexer.static_assets" = ["*"]
 
 [project]
-name = "StaticOSMIndexer"
-description = "Tool to index OSM files for static sites"
+name = "static_osm_indexer"
+description = "Tool to process OSM files, mainly for static sites"
 authors = [
     { name="Jacopo Farina", email="jacopo1.farina@gmail.com"},
 ]
@@ -34,8 +34,19 @@ dependencies = [
     'shapely==2.0b2',
     'geopy==2.3.0'
 ]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: GIS",
+]
+version = "0.1.0"
 
-dynamic = ["version"]
+
+[project.urls]
+"Homepage" = "https://github.com/jacopofar/static-osm-indexer"
+"Bug Tracker" = "https://github.com/jacopofar/static-osm-indexer/issues"
 
 [project.scripts]
 soi_generate_mbtiles = "static_osm_indexer.generate_mbtiles:main"

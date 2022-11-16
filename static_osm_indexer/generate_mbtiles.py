@@ -28,6 +28,7 @@ def run_shell_command(command: str) -> None:
 
 
 def docker_image_exists(image_name: str) -> bool:
+    """Check whether a Docker image exists on this machine."""
     result = subprocess.run(
         f"docker images {image_name}" " --format '{{json .}}'",
         check=True,
@@ -44,6 +45,7 @@ def generate_mbtiles(
     bounding_box: BoundingBox,
     config_path: str,
 ) -> None:
+    """Generate the MBTiles using Tilemaker. Builds it if necessary."""
     if not docker_image_exists("tilemaker"):
         logger.info("Docker image for tilemaker not found, building it...")
         with tempfile.TemporaryDirectory() as tmpdirname:
@@ -72,6 +74,13 @@ def generate_mbtiles(
 
 
 def generate_pbf_fonts(output_folder: Path) -> None:
+    """Generate PBF format fonts.
+
+    This will install the nodejs library on a temporary folder and run it.
+    The library is this one: https://github.com/openmaptiles/fonts
+    It contains a we fonts in TTF format, and are converted to PBF files
+    representing the glyphs as SDF matrices for use by mapboxgl
+    """
     if not Path("fonts").exists():
         run_shell_command("git clone https://github.com/openmaptiles/fonts.git")
     # the dependency is super old, needs to be updated or doesn't work anymore
@@ -87,6 +96,7 @@ def generate_pbf_fonts(output_folder: Path) -> None:
 
 
 def prepare_static_files(output_folder: Path, bounding_box: BoundingBox) -> None:
+    """Copy the static files necessary to use the tiles."""
     index_html = pkg_resources.read_text(static_osm_indexer.static_assets, "index.html")
     p1 = (bounding_box.minlon + bounding_box.maxlon) / 2
     p2 = (bounding_box.minlat + bounding_box.maxlat) / 2

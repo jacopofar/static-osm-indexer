@@ -48,6 +48,7 @@ class RoadNetworkHandler(o.SimpleHandler):
         self.collapse_distance = collapse_distance
 
     def dump_pending_to_db(self) -> None:
+        """Dump data from memory to SQLLite."""
         cur = self.conn.cursor()
         cur.executemany(
             """
