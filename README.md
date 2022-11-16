@@ -1,13 +1,13 @@
 # Static OSM indexer
 
-__NOTE__ this project is not production ready at all,maybe never will, but it is still probably very useful.
+__NOTE__ this project is not production ready at all, maybe never will, but may be useful nonetheless.
 
 This is a collection of scripts that can process data extracts from OpenStreetMap (PBF files) allowing the creation of __static sites__ (that is, a bunch of file hosted without any backend processing) to do a few useful operations:
 
 * display an interactive map (zoom, pan, scroll) based on vector tiles
 * locate addresses and places by name
 * TODO: nearest neighbor
-* TODO: routing
+* TODO: routing (road network can be extracted, but it's not reasonably usable by the frontend)
 
 ## Installation
 
@@ -44,3 +44,11 @@ The default config is fine for most cases, but there are two improvements you ma
 * `--stopwords` allows you to ignore words that are very common in addresses, for example the word for *street* in your language. Using it you can create a more balanced index.
 
 * `--token_length` is the amount of characters to be retrieved before fetching a file. By default 3, if you are processing Chinese or Japanese you should set it to 1 given the different statistical distribution of ideograms.
+
+# Extract road network
+
+Use `soi_extract_road_network` to extract the road network graph into a SQLLite database. Use `--help` for further instructions, it has flags to filter for the walking, bicycle and car network. The `--collapse-distance` flag allows to aggregate nodes that are close together to greatly reduce the complexity of the output.
+
+# Convert road network to geoJSON
+
+The `soi_road_network_to_geojson` command can produce a geoJSON representation of a road network. It will generate a file with the edges and another with only the nodes, for inspection. Notice that unless the area is very small or you used the `--collapse-distance` flag these files are going to be quite large.

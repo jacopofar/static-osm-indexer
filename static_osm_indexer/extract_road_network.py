@@ -104,7 +104,7 @@ class RoadNetworkHandler(o.SimpleHandler):
             return
         self.processed_ways += 1
         if time() > self.latest_message + 60:
-            logger.debug(f"Extracted {self.processed_ways} so far...")
+            logger.debug(f"Processed {self.processed_ways} ways so far...")
             self.latest_message = time()
         if len(self.all_nodes) > DUMP_THRESHOLD:
             logger.debug("Dumping to DB...")
@@ -200,7 +200,7 @@ class RoadNetworkHandler(o.SimpleHandler):
             ):
                 node_a = all_nodes[idx_a]
                 node_b = all_nodes[idx_b]
-                # do not collapse loop points on the same id
+                # do not collapse points on the same id (loops)
                 if node_a.ref == node_b.ref:
                     continue
                 if (
