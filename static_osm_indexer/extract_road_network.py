@@ -190,6 +190,7 @@ class RoadNetworkHandler(o.SimpleHandler):
         # avoid checking distances when there's no collapse distance
         if self.collapse_distance <= 0.0:
             return
+        # TODO this part is very slow, needs profiling
         # try all combinations of nodes up to 5
         # and the more we collapse the better will be later. Let's be brutal!
         # NOTE: we cannot collapse on the fly, because the OSM id may be used
