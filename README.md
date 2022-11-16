@@ -2,6 +2,8 @@
 
 __NOTE__ this project is not production ready at all, maybe never will, but may be useful nonetheless.
 
+![screenshot of a map created with this tool](screenshot.png)
+
 This is a collection of scripts that can process data extracts from OpenStreetMap (PBF files) allowing the creation of __static sites__ (that is, a bunch of file hosted without any backend processing) to do a few useful operations:
 
 * display an interactive map (zoom, pan, scroll) based on vector tiles
@@ -51,3 +53,7 @@ Use `soi_extract_road_network` to extract the road network graph into a SQLLite 
 # Convert road network to geoJSON
 
 The `soi_road_network_to_geojson` command can produce a geoJSON representation of a road network. It will generate a file with the edges and another with only the nodes, for inspection. Notice that unless the area is very small or you used the `--collapse-distance` flag these files are going to be quite large.
+
+# Licensing
+
+This project is under MIT license. Using the data from OSM is fine including commercial projects, but [there are some rules](https://www.openstreetmap.org/copyright) and you __must__ credit OpenStreetMap.
