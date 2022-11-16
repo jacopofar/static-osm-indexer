@@ -22,7 +22,7 @@ Activate the virtual environment and then:
 
 this will make a set of CLI utilities, all prefixed with `soi_`, available. The library can also be used programmatically.
 
-# Generate a map, single step
+## Generate a map, single step
 
 This command will generate a fully static map from a PBF extract
 
@@ -46,14 +46,14 @@ The default config is fine for most cases, but there are two improvements you ma
 
 * `--token_length` is the amount of characters to be retrieved before fetching a file. By default 3, if you are processing Chinese or Japanese you should set it to 1 given the different statistical distribution of ideograms.
 
-# Extract road network
+## Extract road network
 
 Use `soi_extract_road_network` to extract the road network graph into a SQLLite database. Use `--help` for further instructions, it has flags to filter for the walking, bicycle and car network. The `--collapse-distance` flag allows to aggregate nodes that are close together to greatly reduce the complexity of the output.
 
-# Convert road network to geoJSON
+## Convert road network to geoJSON
 
 The `soi_road_network_to_geojson` command can produce a geoJSON representation of a road network. It will generate a file with the edges and another with only the nodes, for inspection. Notice that unless the area is very small or you used the `--collapse-distance` flag these files are going to be quite large.
 
-# Licensing
+# Licensing anc crediting
 
 This project is under MIT license. Using the data from OSM is fine including commercial projects, but [there are some rules](https://www.openstreetmap.org/copyright) and you __must__ credit OpenStreetMap.
