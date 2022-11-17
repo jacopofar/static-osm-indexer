@@ -30,6 +30,10 @@ This command will generate a fully static map from a PBF extract
 
 it needs the name of the folder where to store it and the bounding box.
 
+Use `--help` to see all the options and their usage
+
+Use the `--publish-address` to specify the URL of your map, including protocol and port. By default is `http://127.0.0.1:9000`, be aware that mapbox needs absolute addresses, so it must match the protocol, host and port of your deployment. If missing, can be trivially changed afterwards on the generated files.
+
 ## Extract named locations
 
 Run `soi_list_named_locations`, this will generate a file in which every line is a JSON with a `name` field and `lat`, `lon` coordinates (as EPSG:4326).
