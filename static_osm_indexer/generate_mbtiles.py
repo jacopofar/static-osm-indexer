@@ -58,6 +58,9 @@ def generate_mbtiles(
     if not output_folder.exists():
         # create it, or Docker will create it as root!
         output_folder.mkdir()
+    else:
+        if len(list(output_folder.iterdir())) > 0:
+            raise IOError(f"Target folder {output_folder} is not empty")
     run_shell_command(
         f"""
     docker run --rm
