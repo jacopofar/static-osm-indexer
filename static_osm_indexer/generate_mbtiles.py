@@ -95,13 +95,16 @@ def generate_pbf_fonts(output_folder: Path) -> None:
     run_shell_command(f"cp -rv fonts/_output {output_folder.absolute()}/fonts")
 
 
-def prepare_static_files(output_folder: Path, bounding_box: BoundingBox) -> None:
+def prepare_static_files(
+    output_folder: Path, bounding_box: BoundingBox, publish_address: str
+) -> None:
     """Copy the static files necessary to use the tiles."""
     index_html = pkg_resources.read_text(static_osm_indexer.static_assets, "index.html")
     p1 = (bounding_box.minlon + bounding_box.maxlon) / 2
     p2 = (bounding_box.minlat + bounding_box.maxlat) / 2
 
     index_html = index_html.replace("9.207356, 45.5113243", f"{p1:.7}, {p2:.7}")
+    index_html = index_html.replace("http://127.0.0.1:8100", publish_address)
 
     with open(output_folder.absolute() / "index.html", "w") as fw:
         fw.write(index_html)
@@ -110,6 +113,8 @@ def prepare_static_files(output_folder: Path, bounding_box: BoundingBox) -> None
         osm_style = pkg_resources.read_text(
             static_osm_indexer.static_assets, "osm_liberty.json"
         )
+        osm_style = osm_style.replace("http://127.0.0.1:8100", publish_address)
+
         fw.write(osm_style)
 
 
@@ -131,6 +136,7 @@ def complete_mbtiles_generation(
     input_pbf: Path,
     bounding_box: BoundingBox,
     output_folder: Path,
+    publish_address: str,
 ) -> None:
     logger.info(
         f"Processing {input_pbf.absolute()} to write in {output_folder.absolute()}"
@@ -141,11 +147,14 @@ def complete_mbtiles_generation(
         tilemaker_config = pkg_resources.read_text(
             static_osm_indexer.static_assets, "tilemaker_config.json"
         )
+        tilemaker_config = tilemaker_config.replace(
+            "http://127.0.0.1:8100", publish_address
+        )
         with open(f"{tmpfolder}/tilemaker_config.json", "w") as cfw:
             cfw.write(tilemaker_config)
         generate_mbtiles(input_pbf, output_folder, bounding_box, tmpfolder)
     generate_pbf_fonts(output_folder)
-    prepare_static_files(output_folder, bounding_box)
+    prepare_static_files(output_folder, bounding_box, publish_address)
 
 
 @click.command()
@@ -162,12 +171,19 @@ def complete_mbtiles_generation(
     type=click.Path(file_okay=False, dir_okay=True, path_type=Path),
     default=Path("build"),
 )
+@click.option(
+    "--publish-address",
+    type=click.STRING,
+    default="http://127.0.0.1:9000",
+    help="Address at which the map will be visible",
+)
 def main(
     input_pbf: Path,
     bounding_box: BoundingBox,
     output_folder: Path,
+    publish_address: str,
 ) -> None:
-    complete_mbtiles_generation(input_pbf, bounding_box, output_folder)
+    complete_mbtiles_generation(input_pbf, bounding_box, output_folder, publish_address)
 
 
 if __name__ == "__main__":
