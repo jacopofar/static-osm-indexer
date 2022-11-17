@@ -15,13 +15,21 @@
 
         #app-flex-container {
             display: flex;
+            flex-wrap: wrap;
         }
 
         #map {
             top: 0;
             bottom: 0;
-            width: 60%;
-            height: 100vh;
+            width: 95%;
+            height: 50vh;
+        }
+
+        @media(min-width: 576px) {
+            #map {
+                width: 60%;
+                height: 100vh;
+            }
         }
 
         #searchstatus {
@@ -50,7 +58,8 @@
             maxZoom: 18,
             // placeholder coordinates, are replaced when copying
             center: [9.207356, 45.5113243],
-            pitch: 25
+            pitch: 50,
+            customAttribution: "© OpenStreetMap contributors"
         });
         const idx = new AddressTextualIndex("locations_index");
 
@@ -81,8 +90,8 @@
                         const aMatch = document.createElement("div");
                         aMatch.classList.add("result-entry");
                         const linkToPosition = document.createElement("a");
-                        linkToPosition.href="#";
-                        linkToPosition.onclick = () =>{
+                        linkToPosition.href = "#";
+                        linkToPosition.onclick = () => {
                             const lngLat = [res.lon, res.lat]
                             new maplibregl.Marker()
                                 .setLngLat(lngLat)
