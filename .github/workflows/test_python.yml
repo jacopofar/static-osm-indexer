@@ -18,6 +18,6 @@ jobs:
     - name: Install dependencies
       run: |
         make install
-    - name: Linting python code
+    - name: Testing python code
       run: |
         make test
