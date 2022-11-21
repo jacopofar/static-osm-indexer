@@ -1,5 +1,9 @@
 # Static OSM indexer
 
+__[Result demo](https://jacopofarina.eu/experiments/italy_static_map/)__
+
+__[Technical article](https://jacopofarina.eu/posts/static-maps-part-3-text-search/)__
+
 __NOTE__ this project is not production ready at all, maybe never will, but may be useful nonetheless.
 
 ![screenshot of a map created with this tool](screenshot.png)
