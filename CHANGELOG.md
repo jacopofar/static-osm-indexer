@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2023-06-21
+
+### Changed
+- Include maplibre 3.1.0 assets as files in the project, instead of using a CDN
+
 ## [0.2.0] - 2022-11-17
 ### Added
 - `--publish-address` flag to specify the URL prefix of the map

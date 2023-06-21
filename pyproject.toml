@@ -41,7 +41,7 @@ classifiers = [
     "Operating System :: OS Independent",
     "Topic :: Scientific/Engineering :: GIS",
 ]
-version = "0.2.0"
+version = "0.2.1"
 
 
 [project.urls]
